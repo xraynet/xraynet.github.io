@@ -10,10 +10,12 @@
     * {
       margin: 0;
       padding: 0;
+      background: #000;
+      cursor: default;
     }
 
-    html {
-      background: #000;
+    *::selection {
+      background: transparent;
     }
 
     pre {
@@ -23,17 +25,12 @@
       transform: translate(-50%, -50%);
       color: cyan;
       font-size: 20px;
-      cursor: default;
-    }
-
-    pre::selection {
-      background: transparent;
     }
   </style>
 </head>
 
 <body>
-  <pre>
+<pre>
                   -`                 
                  .o+`                
                 `ooo/                
