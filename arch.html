@@ -17,17 +17,22 @@
     }
 
     pre {
-      width: fit-content;
-      margin: 0 auto;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       color: cyan;
-      font-size: 30px;
+      font-size: 20px;
+    }
+
+    pre::selection {
+      background: transparent;
     }
   </style>
 </head>
 
 <body>
-  <br>
-<pre>
+  <pre>
                   -`                 
                  .o+`                
                 `ooo/                
