@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Expires" content="0" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Cache-control" content="no-cache" />
+    <meta http-equiv="Cache" content="no-cache" />
+
+    <title>TV</title>
+
+    <!-- development version, includes helpful console warnings -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script> -->
+    <!-- production version, optimized for size and speed -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/hls.js/0.3.10/hls.min.js"></script>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      .main {
+        display: flex;
+        /* width: 100vw; */
+        /* height: 100vh; */
+      }
+      .table {
+        width: 60vw;
+      }
+      .video {
+        width: 40vw;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      td,
+      th {
+        max-width: 5vw;
+        padding: 5px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        border: 1px solid #000;
+      }
+      span {
+        margin: 0 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="main">
+        <div class="table">
+          <div>
+            <table>
+              <thead>
+                <tr style="position: sticky; top: 0; z-index: 9; background: #fff">
+                  <!-- Channel ID -->
+                  <!-- Stream URL -->
+                  <!-- or null	The Referer request header for the stream -->
+                  <!-- or null	The User-Agent request header for the stream -->
+                  <!-- One of the following: online, blocked, timeout, error -->
+                  <!-- The maximum width of the stream in pixels. Specified only if the status is online -->
+                  <!-- The maximum height of the stream in pixels. Specified only if the status is online -->
+                  <!-- The bitrate of the stream in bits per second. Specified only if the status is online -->
+                  <!-- or float	The frame rate of the stream in frames per second. Specified only if the status is online -->
+                  <th>#</th>
+                  <th>channel</th>
+                  <th>url</th>
+                  <th>http_referrer</th>
+                  <th>user_agent</th>
+                  <th>status</th>
+                  <th>width</th>
+                  <th>height</th>
+                  <th>bitrate</th>
+                  <th>frame_rate</th>
+                  <th>play</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr v-for="(item, index) in list" :key="index">
+                  <td>
+                    <!-- <div style="transform: translateY(-5vh)"></div> -->
+                    <!-- :id="Number(index + 1)" -->
+                    <!-- :id="Number(index + 1) + '_' + item.channel" -->
+                    <!-- <a :href="'#' + Number(index + 1)"> {{ index + 1 }} </a> -->
+                    <!-- <a :href="'#' + Number(index + 1) + '_' + item.channel""> {{ index + 1 }} </a> -->
+                    {{ Number(index + 1) }}
+                  </td>
+                  <td :title="item.channel">{{ item.channel }}</td>
+                  <td :title="item.url">
+                    <a href="item.url">{{ item.url }}</a>
+                  </td>
+                  <td :title="item.http_referrer">{{ item.http_referrer }}</td>
+                  <td :title="item.user_agent">{{ item.user_agent }}</td>
+                  <td
+                    :title="item.status"
+                    :style="{color: (item.status === 'online' ? 'green' : '#000')}"
+                  >
+                    {{ item.status }}
+                  </td>
+                  <td :title="item.width">{{ item.width }}</td>
+                  <td :title="item.height">{{ item.height }}</td>
+                  <td :title="item.bitrate">{{ item.bitrate }}</td>
+                  <td :title="item.frame_rate">{{ item.frame_rate }}</td>
+                  <td><button @click="getStream(item.url)">play</button></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table style="position: sticky; bottom: 0; z-index: 9; background: #fff">
+              <tr>
+                <th>
+                  <span> status </span>
+
+                  <input type="radio" id="all" name="status" value="all" @click="getList('all')" />
+                  <label for="all">all</label>
+
+                  <input
+                    type="radio"
+                    id="online"
+                    name="status"
+                    value="online"
+                    @click="getList('online')"
+                  />
+                  <label for="online">online</label>
+
+                  <input
+                    type="radio"
+                    id="blocked"
+                    name="status"
+                    value="blocked"
+                    @click="getList('blocked')"
+                  />
+                  <label for="blocked">blocked</label>
+
+                  <input
+                    type="radio"
+                    id="timeout"
+                    name="status"
+                    value="timeout"
+                    @click="getList('timeout')"
+                  />
+                  <label for="timeout">timeout</label>
+
+                  <input
+                    type="radio"
+                    id="error"
+                    name="status"
+                    value="error"
+                    @click="getList('error')"
+                  />
+                  <label for="error">error</label>
+
+                  <span> total( {{ list.length }} ) </span>
+
+                  <span><button @click="videoPause()">pause</button></span>
+
+                  <!-- <span>
+                    <a
+                      href="javascript:;"
+                      onclick="javascript:(function(){function RGBtoHSL(RGBColor){with(Math){var R,G,B;var cMax,cMin;var sum,diff;var Rdelta,Gdelta,Bdelta;var H,L,S;R=RGBColor[0];G=RGBColor[1];B=RGBColor[2];cMax=max(max(R,G),B);cMin=min(min(R,G),B);sum=cMax+cMin;diff=cMax-cMin;L=sum/2;if(cMax==cMin){S=0;H=0;}else{if(L<=(1/2))S=diff/sum;else S=diff/(2-sum);Rdelta=R/6/diff;Gdelta=G/6/diff;Bdelta=B/6/diff;if(R==cMax)H=Gdelta-Bdelta;else if(G==cMax)H=(1/3)+Bdelta-Rdelta;else H=(2/3)+Rdelta-Gdelta;if(H<0)H+=1;if(H>1)H-=1;}return[H,S,L];}}function getRGBColor(node,prop){var rgb=getComputedStyle(node,null).getPropertyValue(prop);var r,g,b;if(/rgb\((\d+),\s(\d+),\s(\d+)\)/.exec(rgb)){r=parseInt(RegExp.$1,10);g=parseInt(RegExp.$2,10);b=parseInt(RegExp.$3,10);return[r/255,g/255,b/255];}return rgb;}function hslToCSS(hsl){return 'hsl('+Math.round(hsl[0]*360)+', '+Math.round(hsl[1]*100)+'%, '+Math.round(hsl[2]*100)+'%)';}var props=['color','background-color','border-left-color','border-right-color','border-top-color','border-bottom-color'];var props2=['color','backgroundColor','borderLeftColor','borderRightColor','borderTopColor','borderBottomColor'];if(typeof getRGBColor(document.documentElement,'background-color')=='string')document.documentElement.style.backgroundColor='white';revl(document.documentElement);function revl(n){var i,x,color,hsl;if(n.nodeType==Node.ELEMENT_NODE){for(i=0;x=n.childNodes[i];++i)revl(x);for(i=0;x=props[i];++i){color=getRGBColor(n,x);if(typeof(color)!='string'){hsl=RGBtoHSL(color);hsl[2]=1-hsl[2];n.style[props2[i]]=hslToCSS(hsl);}}}}})()"
+                    >
+                      dark/light
+                    </a>
+                  </span> -->
+
+                  <!-- <span>
+                    <a
+                      href="javascript:winsize = screen.width - 650;void(window.open(window.location.href,%20'_blank',%20'height=333,width=592,top=50,left='%20+%20winsize));"
+                      >window</a
+                    >
+                  </span> -->
+                </th>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="video">
+          <video ref="video" controls style="width: 100%; position: sticky; top: 0">
+            <!-- <source src="" type=""> -->
+          </video>
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    var Hls = window.Hls
+
+    // ;(function () {
+    //   var script = document.createElement('script')
+    //   script.onload = function () {
+    //     var stats = new Stats()
+    //     document.body.appendChild(stats.dom)
+    //     requestAnimationFrame(function loop() {
+    //       stats.update()
+    //       requestAnimationFrame(loop)
+    //     })
+    //   }
+    //   script.src = '//mrdoob.github.io/stats.js/build/stats.min.js'
+    //   document.head.appendChild(script)
+    // })()
+
+    var app = new Vue({
+      el: '#app',
+      data: {
+        list: [],
+        hls: null
+      },
+      created() {},
+      mounted() {},
+      methods: {
+        getStream(url) {
+          if (Hls.isSupported()) {
+            this.hls = new Hls()
+            this.hls.loadSource(url)
+            this.hls.attachMedia(this.$refs.video)
+
+            this.hls.on(Hls.Events.MANIFEST_PARSED, () => {
+              this.$refs.video.play()
+            })
+            this.hls.on(Hls.Events.ERROR, (event, data) => {
+              console.log(event, data)
+              this.videoPause()
+            })
+          } else if (this.$refs.video.canPlayType('application/vnd.apple.mpegurl')) {
+            this.$refs.video.src = url
+            this.$refs.video.addEventListener('loadedmetadata', function () {
+              this.$refs.video.play()
+            })
+          }
+        },
+        videoPause() {
+          if (this.hls) {
+            this.$refs.video.pause()
+            this.hls.destroy()
+            this.hls = null
+          }
+        },
+        getList(status) {
+          let that = this
+          this.radioDisabled(true)
+          this.list = []
+          axios
+            .get('https://iptv-org.github.io/api/streams.json', {
+              params: {},
+              timeout: 30000
+            })
+            .then(function (res) {
+              console.log(res)
+              if (status === 'all') {
+                that.list = res.data
+              } else {
+                that.list = res.data.filter((v) => {
+                  return v.status === status
+                })
+              }
+              that.radioDisabled(false)
+            })
+            .catch(function (err) {
+              console.log(err)
+              that.radioDisabled(false)
+            })
+        },
+        radioDisabled(boolean) {
+          document.getElementById('all').disabled = boolean
+          document.getElementById('online').disabled = boolean
+          document.getElementById('blocked').disabled = boolean
+          document.getElementById('timeout').disabled = boolean
+          document.getElementById('error').disabled = boolean
+        }
+      }
+    })
+  </script>
+</html>
