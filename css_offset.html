@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CSS Motion Path</title>
+    <style>
+      #Miku {
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+        text-align: center;
+        border-radius: 50%;
+        /* background: cyan; */
+        /* background: #6CF; */
+        background: #6fc;
+        offset-rotate: 0deg;
+        offset-path: path(
+          'M140 20C73 20 20 74 20 140c0 135 136 170 228 303 88-132 229-173 229-303 0-66-54-120-120-120-48 0-90 28-109 69-19-41-60-69-108-69z'
+        );
+        animation: move 3s linear infinite;
+      }
+
+      @keyframes move {
+        0% {
+          offset-distance: 0%;
+        }
+        100% {
+          offset-distance: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a href="https://developer.mozilla.org/zh-CN/docs/Web/CSS/offset">
+      CSS Offset Docs
+    </a>
+    <br />
+
+    <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Motion_Path">
+      CSS Motion Path Docs
+    </a>
+    <br />
+
+    <a
+      href="https://yari-demos.prod.mdn.mozit.cloud/zh-CN/docs/Web/CSS/offset/_sample_.example.html"
+    >
+      Sample Example
+    </a>
+    <br />
+
+    <a
+      href="https://yari-demos.prod.mdn.mozit.cloud/en-US/docs/Web/CSS/offset-path/_sample_.animating_an_element_with_offset-path.html"
+    >
+      House Example
+    </a>
+    <br />
+
+    <a href="https://codepen.io/anthonydugois/full/mewdyZ">
+      SVG Path Builder
+    </a>
+    <br />
+
+    <a href="https://yqnn.github.io/svg-path-editor/"> Svg Path Editor </a>
+
+    <div id="Miku">Miku</div>
+  </body>
+</html>
