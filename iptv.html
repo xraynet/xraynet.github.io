@@ -232,7 +232,7 @@
             })
           } else if (this.$refs.video.canPlayType('application/vnd.apple.mpegurl')) {
             this.$refs.video.src = url
-            this.$refs.video.addEventListener('loadedmetadata', function() {
+            this.$refs.video.addEventListener('loadedmetadata', function () {
               this.$refs.video.play()
             })
           }
@@ -253,15 +253,15 @@
 
           Promise.race([
             fetch(`https://iptv-org.github.io/api/streams.json`),
-            new Promise(function(resolve, reject) {
+            new Promise((resolve, reject) => {
               setTimeout(() => reject(new Error('request timeout')), 30000)
             })
           ])
-            .then(response => {
+            .then((response) => {
               if (response.ok) return response.json()
               throw new Error('Network response was not ok.')
             })
-            .then(data => {
+            .then((data) => {
               // console.log(data)
               let arr = data.map((item, index) => {
                 return { ...item, id: index }
@@ -270,14 +270,14 @@
               if (status === 'all') {
                 that.list = arr
               } else {
-                that.list = arr.filter(item => {
+                that.list = arr.filter((item) => {
                   return item.status === status
                 })
               }
               // console.log(that.list)
               that.radioDisable(false)
             })
-            .catch(error => {
+            .catch((error) => {
               console.log(error)
               that.radioDisable(false)
             })
